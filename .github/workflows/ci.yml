@@ -1,0 +1,85 @@
+name: TicketFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend-test:
+    name: Backend (Laravel 11 & PHP 8.2)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, gd, redis
+          coverage: none
+
+      - name: Validate composer.json
+        run: |
+          cd ticketflow-backend
+          composer validate --strict
+
+      - name: Install Composer dependencies
+        run: |
+          cd ticketflow-backend
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+  frontend-react:
+    name: Frontend React Marketplace
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ticketflow-frontend/react-marketplace/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd ticketflow-frontend/react-marketplace
+          npm ci
+
+      - name: Run Vitest Unit Tests
+        run: |
+          cd ticketflow-frontend/react-marketplace
+          npm run test
+
+      - name: Build React App
+        run: |
+          cd ticketflow-frontend/react-marketplace
+          npm run build
+
+  frontend-angular:
+    name: Frontend Angular Organizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ticketflow-frontend/angular-organizer/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd ticketflow-frontend/angular-organizer
+          npm ci
+
+      - name: Build Angular App
+        run: |
+          cd ticketflow-frontend/angular-organizer
+          npm run build

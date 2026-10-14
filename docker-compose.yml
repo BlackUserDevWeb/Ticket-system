@@ -1,0 +1,87 @@
+services:
+  # -------------------------------------------------------------
+  # API Laravel 11 Backend
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: ./ticketflow-backend
+      dockerfile: Dockerfile
+    container_name: ticketflow_backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ticketflow
+      DB_USERNAME: ticketflow_user
+      DB_PASSWORD: ticketflow_secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./ticketflow-backend:/var/www/html
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ticketflow_network
+
+  # -------------------------------------------------------------
+  # Base de données MySQL 8
+  # -------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: ticketflow_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ticketflow
+      MYSQL_USER: ticketflow_user
+      MYSQL_PASSWORD: ticketflow_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ticketflow_network
+
+  # -------------------------------------------------------------
+  # Cache & Files Redis
+  # -------------------------------------------------------------
+  redis:
+    image: redis:alpine
+    container_name: ticketflow_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ticketflow_network
+
+  # -------------------------------------------------------------
+  # Nginx Serveur Web (Reverse proxy API)
+  # -------------------------------------------------------------
+  web:
+    image: nginx:alpine
+    container_name: ticketflow_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./ticketflow-backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - ticketflow_network
+
+networks:
+  ticketflow_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:

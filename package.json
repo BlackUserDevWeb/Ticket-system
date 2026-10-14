@@ -1,0 +1,30 @@
+{
+  "name": "ticketflow-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TicketFlow — Plateforme de billetterie événementielle pour le Togo (Monorepo Backend Laravel 11 + Frontend React/Angular/Vanilla)",
+  "workspaces": [
+    "ticketflow-frontend/react-marketplace",
+    "ticketflow-frontend/angular-organizer"
+  ],
+  "scripts": {
+    "build:all": "npm --prefix ticketflow-frontend/react-marketplace run build && npm --prefix ticketflow-frontend/angular-organizer run build",
+    "build:marketplace": "npm --prefix ticketflow-frontend/react-marketplace run build",
+    "build:organizer": "npm --prefix ticketflow-frontend/angular-organizer run build",
+    "dev:marketplace": "npm --prefix ticketflow-frontend/react-marketplace run dev",
+    "dev:organizer": "npm --prefix ticketflow-frontend/angular-organizer run start",
+    "test:marketplace": "npm --prefix ticketflow-frontend/react-marketplace run test",
+    "test:all": "npm run test:marketplace"
+  },
+  "keywords": [
+    "ticketflow",
+    "billetterie",
+    "togo",
+    "mobile-money",
+    "laravel",
+    "react",
+    "angular"
+  ],
+  "author": "TicketFlow Team",
+  "license": "proprietary"
+}
